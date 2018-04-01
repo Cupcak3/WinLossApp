@@ -53,6 +53,8 @@ public class Window
 		panel.add(minusLoss, BorderLayout.SOUTH);
 		panel.add(minusTie, BorderLayout.SOUTH);
 
+		recordLabel.setOpaque(true);
+		recordLabel.setBackground(Color.GREEN);
 
 		frame.add(recordLabel);
 
