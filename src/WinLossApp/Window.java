@@ -1,6 +1,8 @@
 package WinLossApp;
 
 import javax.swing.*;
+import javax.swing.event.MenuEvent;
+import javax.swing.event.MenuListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -17,26 +19,49 @@ public class Window
 	private JButton minusWin;
 	private JLabel recordLabel;
 
-	private JFrame frame = new JFrame("Overloss");
+	private JFrame frame = new JFrame("Win Loss Tracker");
+	private JMenuBar menuBar;
+	private JMenu menu;
+	private JMenuItem save, load;
+
 	private DataProcessor data;
+
 	Window()
 	{
+		JPanel panel = new JPanel();
 		data = new DataProcessor();
+
+		setUpMenu();
+		setUpButtons(panel);
+
 		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLayout(new BorderLayout());
 
-		JPanel panel = new JPanel();
 		panel.setLayout(new GridLayout(2, 3));
 
+		recordLabel.setOpaque(true);
+		recordLabel.setBackground(Color.GREEN);
+
+		frame.add(recordLabel);
+
+		frame.add(panel, BorderLayout.SOUTH);
+		frame.setLocationRelativeTo(null);
+		frame.setLocation(frame.getX() - 250, frame.getY() - 100);
+
+		frame.setSize(500, 200);
+
+	}
+	private void setUpButtons(JPanel panel)
+	{
 		ButtonGroup group = new ButtonGroup();
 
-		addWin.addActionListener(new ButtonListener());
-		addLoss.addActionListener(new ButtonListener());
-		addTie.addActionListener(new ButtonListener());
-		minusWin.addActionListener(new ButtonListener());
-		minusLoss.addActionListener(new ButtonListener());
-		minusTie.addActionListener(new ButtonListener());
+		addWin.addActionListener(new Listener());
+		addLoss.addActionListener(new Listener());
+		addTie.addActionListener(new Listener());
+		minusWin.addActionListener(new Listener());
+		minusLoss.addActionListener(new Listener());
+		minusTie.addActionListener(new Listener());
 
 		group.add(addWin);
 		group.add(addLoss);
@@ -52,18 +77,80 @@ public class Window
 		panel.add(minusWin, BorderLayout.SOUTH);
 		panel.add(minusLoss, BorderLayout.SOUTH);
 		panel.add(minusTie, BorderLayout.SOUTH);
+	}
+	private void setUpMenu()
+	{
+		menuBar = new JMenuBar();
+		menu = new JMenu("File");
+		JMenuItem reset = new JMenu("Reset");
 
-		recordLabel.setOpaque(true);
-		recordLabel.setBackground(Color.GREEN);
+		save = new JMenuItem("Save");
+		load = new JMenuItem("Load");
 
-		frame.add(recordLabel);
+		menu.add(save);
+		menu.add(load);
+		menu.add(reset);
 
-		frame.add(panel, BorderLayout.SOUTH);
-		frame.setLocationRelativeTo(null);
-		frame.setLocation(frame.getX() - 150, frame.getY() - 100);
+		save.addActionListener(e -> {
+			SaveManager.save(data);
+			System.out.println("Saved");
+		});
 
-		frame.setSize(500, 200);
+		load.addActionListener(e -> {
+			System.out.println("Loading");
+			data = SaveManager.load(data);
+			updateRecord();
+		});
 
+		((JMenu) reset).addMenuListener(new MenuListener()
+		{
+			@Override
+			public void menuSelected(MenuEvent e)
+			{
+				System.out.println("Resetting");
+				int selection = JOptionPane.showConfirmDialog(null, "Are you sure you want to reset your record?", null, JOptionPane.YES_NO_OPTION);
+				if (selection == JOptionPane.NO_OPTION)
+				{
+					final JMenu menu = (JMenu) e.getSource();
+					new Timer(100, e1 -> {
+						menu.setSelected(false);
+						((Timer) e1.getSource()).stop();
+					}).start();
+					return;
+				}
+				data = new DataProcessor();
+				updateRecord();
+				final JMenu menu = (JMenu) e.getSource();
+				new Timer(100, e14 -> {
+					menu.setSelected(false);
+					((Timer) e14.getSource()).stop();
+				}).start();
+			}
+			@Override
+			public void menuDeselected(MenuEvent e)
+			{
+				final JMenu menu = (JMenu) e.getSource();
+				new Timer(100, e13 -> {
+					menu.setSelected(false);
+					((Timer) e13.getSource()).stop();
+				}).start();
+			}
+			@Override
+			public void menuCanceled(MenuEvent e)
+			{
+				final JMenu menu = (JMenu) e.getSource();
+				new Timer(100, e12 -> {
+					menu.setSelected(false);
+					((Timer) e12.getSource()).stop();
+				}).start();
+
+			}
+		});
+
+		menuBar.add(menu);
+		menuBar.add(reset);
+
+		frame.setJMenuBar(menuBar);
 	}
 
 	private void updateRecord()
@@ -81,12 +168,13 @@ public class Window
 		frame.setVisible(true);
 	}
 
-	private class ButtonListener implements ActionListener
+	private class Listener implements ActionListener
 	{
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
 			Object source = e.getSource();
+
 			if (source.equals(addWin)) data.addWin();
 			else if (source.equals(addLoss)) data.addLoss();
 			else if (source.equals(addTie)) data.addTie();

@@ -1,6 +1,8 @@
 package WinLossApp;
 
-class DataProcessor
+import java.io.Serializable;
+
+class DataProcessor implements Serializable
 {
 	private int wins, losses, ties, games;
 
