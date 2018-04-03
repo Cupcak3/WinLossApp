@@ -23,6 +23,8 @@ public class Window
 
 	private DataProcessor data;
 
+	private boolean showWinrate;
+
 	Window()
 	{
 		JPanel panel = new JPanel();
@@ -90,16 +92,20 @@ public class Window
 	private void setUpMenu()
 	{
 		JMenuBar menuBar = new JMenuBar();
-		JMenu menu = new JMenu("File");
-
+		JMenu file = new JMenu("File");
+		JMenu options = new JMenu("Option");
 
 		JMenuItem save = new JMenuItem("Save");
 		JMenuItem load = new JMenuItem("Load");
 		JMenuItem reset = new JMenuItem("Reset");
 
-		menu.add(save);
-		menu.add(load);
-		menu.add(reset);
+		JCheckBoxMenuItem winrateCheck = new JCheckBoxMenuItem("Show Winrate", false);
+
+		file.add(save);
+		file.add(load);
+		file.add(reset);
+
+		options.add(winrateCheck);
 
 		save.addActionListener(e -> {
 			frame.setVisible(false);
@@ -124,7 +130,8 @@ public class Window
 		});
 
 		reset.addActionListener(e -> {
-			int selection = JOptionPane.showConfirmDialog(null, "Are you sure you want to reset your record?", null, JOptionPane.YES_NO_OPTION);
+			int selection = JOptionPane.showConfirmDialog(null, "Are you sure you want to reset your record?", null,
+					JOptionPane.YES_NO_OPTION);
 			if (selection != JOptionPane.NO_OPTION)
 			{
 				data = new DataProcessor();
@@ -132,7 +139,13 @@ public class Window
 			}
 		});
 
-		menuBar.add(menu);
+		winrateCheck.addActionListener(e -> {
+			showWinrate = winrateCheck.getState();
+			updateRecord();
+		});
+
+		menuBar.add(file);
+		menuBar.add(options);
 
 		frame.setJMenuBar(menuBar);
 	}
@@ -141,10 +154,13 @@ public class Window
 	{
 		DecimalFormat df = new DecimalFormat("###.##");
 		float winrate = data.getWinsToGames();
-		if (winrate != -1)
-			recordLabel.setText("W: " + data.getWins() + " | " + "L: " + data.getLosses() + " | " + "T: " + data.getTies() + "\n" + " Winrate: " + df.format(winrate * 100) + "%");
-		else
-			recordLabel.setText("W: " + data.getWins() + " | " + "L: " + data.getLosses() + " | " + "T: " + data.getTies());
+		if (showWinrate) recordLabel.setText(winrate != -1 ?
+				"W: " + data.getWins() + " | " + "L: " + data.getLosses() + " | " + "T: " + data.getTies() + "\n" +
+						" Winrate: " + df.format(winrate * 100) + "%" :
+				"W: " + data.getWins() + " | " + "L: " + data.getLosses() + " | " + "T: " + data.getTies() +
+						" Winrate: 0%");
+		else recordLabel
+				.setText("W: " + data.getWins() + " | " + "L: " + data.getLosses() + " | " + "T: " + data.getTies());
 	}
 
 	void run()
