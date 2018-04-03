@@ -2,12 +2,13 @@ package WinLossApp;
 
 import javax.swing.*;
 import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 class SaveManager
 {
 	SaveManager()
 	{
-
 	}
 
 	static void save(DataProcessor data)
@@ -16,7 +17,9 @@ class SaveManager
 		ObjectOutputStream oos = null;
 
 		JFileChooser chooser = new JFileChooser(new File(System.getProperty("user.dir")));
-		//chooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
+		SimpleDateFormat date = new SimpleDateFormat("E_MM_dd_yyyy");
+		chooser.setSelectedFile(new File(new File(date.format(new Date())) + ".save"));
+		chooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
 
 		try
 		{
@@ -46,28 +49,22 @@ class SaveManager
 		}
 		finally
 		{
-			if (fout != null)
+			if (fout != null) try
 			{
-				try
-				{
-					fout.close();
-				}
-				catch (IOException e)
-				{
-					e.printStackTrace();
-				}
+				fout.close();
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
 			}
 
-			if (oos != null)
+			if (oos != null) try
 			{
-				try
-				{
-					oos.close();
-				}
-				catch (Exception e)
-				{
-					e.printStackTrace();
-				}
+				oos.close();
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
 			}
 		}
 	}
