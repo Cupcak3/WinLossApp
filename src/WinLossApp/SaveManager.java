@@ -80,7 +80,7 @@ class SaveManager
 		DataProcessor newData;
 		try
 		{
-			int retrieval = chooser.showOpenDialog(null);
+			int retrieval = chooser.showSaveDialog(null);
 			File file = chooser.getSelectedFile();
 			if (retrieval == JFileChooser.CANCEL_OPTION) return data;
 

@@ -1,12 +1,12 @@
 package WinLossApp;
 
 import javax.swing.*;
-import javax.swing.event.MenuEvent;
-import javax.swing.event.MenuListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 public class Window
@@ -20,9 +20,6 @@ public class Window
 	private JLabel recordLabel;
 
 	private JFrame frame = new JFrame("Win Loss Tracker");
-	private JMenuBar menuBar;
-	private JMenu menu;
-	private JMenuItem save, load;
 
 	private DataProcessor data;
 
@@ -31,26 +28,38 @@ public class Window
 		JPanel panel = new JPanel();
 		data = new DataProcessor();
 
+		setUpFrame(panel);
 		setUpMenu();
 		setUpButtons(panel);
 
+	}
+	private void setUpFrame(JPanel panel)
+	{
 		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLayout(new BorderLayout());
+		frame.setLocationRelativeTo(null);
+		frame.setLocation(frame.getX() - 250, frame.getY() - 100);
+
+		try
+		{
+			ImageIcon icon = new ImageIcon(this.getClass().getResource("resources/owo1.jpg"));
+			frame.setIconImage(icon.getImage());
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+
+		frame.add(recordLabel);
+		frame.add(panel, BorderLayout.SOUTH);
 
 		panel.setLayout(new GridLayout(2, 3));
 
 		recordLabel.setOpaque(true);
 		recordLabel.setBackground(Color.GREEN);
 
-		frame.add(recordLabel);
-
-		frame.add(panel, BorderLayout.SOUTH);
-		frame.setLocationRelativeTo(null);
-		frame.setLocation(frame.getX() - 250, frame.getY() - 100);
-
 		frame.setSize(500, 200);
-
 	}
 	private void setUpButtons(JPanel panel)
 	{
@@ -80,75 +89,50 @@ public class Window
 	}
 	private void setUpMenu()
 	{
-		menuBar = new JMenuBar();
-		menu = new JMenu("File");
-		JMenuItem reset = new JMenu("Reset");
+		JMenuBar menuBar = new JMenuBar();
+		JMenu menu = new JMenu("File");
 
-		save = new JMenuItem("Save");
-		load = new JMenuItem("Load");
+
+		JMenuItem save = new JMenuItem("Save");
+		JMenuItem load = new JMenuItem("Load");
+		JMenuItem reset = new JMenuItem("Reset");
 
 		menu.add(save);
 		menu.add(load);
 		menu.add(reset);
 
 		save.addActionListener(e -> {
+			frame.setVisible(false);
 			SaveManager.save(data);
-			System.out.println("Saved");
+			Timer timer = new Timer();
+			timer.schedule(new TimerTask()
+			{
+				@Override
+				public void run()
+				{
+					frame.setVisible(true);
+				}
+			}, 200);
+
 		});
 
 		load.addActionListener(e -> {
-			System.out.println("Loading");
+			frame.setVisible(false);
 			data = SaveManager.load(data);
 			updateRecord();
+			frame.setVisible(true);
 		});
 
-		((JMenu) reset).addMenuListener(new MenuListener()
-		{
-			@Override
-			public void menuSelected(MenuEvent e)
+		reset.addActionListener(e -> {
+			int selection = JOptionPane.showConfirmDialog(null, "Are you sure you want to reset your record?", null, JOptionPane.YES_NO_OPTION);
+			if (selection != JOptionPane.NO_OPTION)
 			{
-				System.out.println("Resetting");
-				int selection = JOptionPane.showConfirmDialog(null, "Are you sure you want to reset your record?", null, JOptionPane.YES_NO_OPTION);
-				if (selection == JOptionPane.NO_OPTION)
-				{
-					final JMenu menu = (JMenu) e.getSource();
-					new Timer(100, e1 -> {
-						menu.setSelected(false);
-						((Timer) e1.getSource()).stop();
-					}).start();
-					return;
-				}
 				data = new DataProcessor();
 				updateRecord();
-				final JMenu menu = (JMenu) e.getSource();
-				new Timer(100, e14 -> {
-					menu.setSelected(false);
-					((Timer) e14.getSource()).stop();
-				}).start();
-			}
-			@Override
-			public void menuDeselected(MenuEvent e)
-			{
-				final JMenu menu = (JMenu) e.getSource();
-				new Timer(100, e13 -> {
-					menu.setSelected(false);
-					((Timer) e13.getSource()).stop();
-				}).start();
-			}
-			@Override
-			public void menuCanceled(MenuEvent e)
-			{
-				final JMenu menu = (JMenu) e.getSource();
-				new Timer(100, e12 -> {
-					menu.setSelected(false);
-					((Timer) e12.getSource()).stop();
-				}).start();
-
 			}
 		});
 
 		menuBar.add(menu);
-		menuBar.add(reset);
 
 		frame.setJMenuBar(menuBar);
 	}
