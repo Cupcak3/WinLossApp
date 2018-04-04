@@ -18,6 +18,7 @@ public class Window
 	private JButton minusLoss;
 	private JButton minusWin;
 	private JLabel recordLabel;
+	private JCheckBox winrateCheckBox;
 
 	private JFrame frame = new JFrame("Win Loss Tracker");
 
@@ -37,11 +38,10 @@ public class Window
 	}
 	private void setUpFrame(JPanel panel)
 	{
-		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLayout(new BorderLayout());
 		frame.setLocationRelativeTo(null);
-		frame.setLocation(frame.getX() - 250, frame.getY() - 100);
+		frame.setLocation(frame.getX() - 250, frame.getY() - 200);
 
 		try
 		{
@@ -56,12 +56,12 @@ public class Window
 		frame.add(recordLabel);
 		frame.add(panel, BorderLayout.SOUTH);
 
-		panel.setLayout(new GridLayout(2, 3));
+		panel.setLayout(new GridLayout(3, 3));
 
 		recordLabel.setOpaque(true);
 		recordLabel.setBackground(Color.GREEN);
 
-		frame.setSize(500, 200);
+		frame.setSize(500, 400);
 	}
 	private void setUpButtons(JPanel panel)
 	{
@@ -73,6 +73,11 @@ public class Window
 		minusWin.addActionListener(new Listener());
 		minusLoss.addActionListener(new Listener());
 		minusTie.addActionListener(new Listener());
+
+		winrateCheckBox.addActionListener(e -> {
+			showWinrate = winrateCheckBox.isSelected();
+			updateRecord();
+		});
 
 		group.add(addWin);
 		group.add(addLoss);
@@ -88,6 +93,7 @@ public class Window
 		panel.add(minusWin, BorderLayout.SOUTH);
 		panel.add(minusLoss, BorderLayout.SOUTH);
 		panel.add(minusTie, BorderLayout.SOUTH);
+		panel.add(winrateCheckBox);
 	}
 	private void setUpMenu()
 	{
@@ -98,14 +104,14 @@ public class Window
 		JMenuItem save = new JMenuItem("Save");
 		JMenuItem load = new JMenuItem("Load");
 		JMenuItem reset = new JMenuItem("Reset");
+		JMenuItem color = new JMenuItem("Change Background Color");
 
-		JCheckBoxMenuItem winrateCheck = new JCheckBoxMenuItem("Show Winrate", false);
 
 		file.add(save);
 		file.add(load);
 		file.add(reset);
 
-		options.add(winrateCheck);
+		options.add(color);
 
 		save.addActionListener(e -> {
 			frame.setVisible(false);
@@ -139,9 +145,9 @@ public class Window
 			}
 		});
 
-		winrateCheck.addActionListener(e -> {
-			showWinrate = winrateCheck.getState();
-			updateRecord();
+		color.addActionListener(e -> {
+			Color newColor = JColorChooser.showDialog(null, "Choose a color", recordLabel.getBackground());
+			if (newColor != null) recordLabel.setBackground(newColor);
 		});
 
 		menuBar.add(file);
